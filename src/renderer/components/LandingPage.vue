@@ -1,83 +1,113 @@
 <template>
   <div id="wrapper">
     <main>
-        <Row  :gutter="18">
-          <Col :xs="{span:24}" :sm="{span:24}" :md="{span:24}" :lg="{span:12}" >
-           <Card dis-hover	class="row-margin-bottom row-margin-top">
-              <p slot="title"><span class="color-red">*&nbsp;</span>数据参数</p>
-              <Form >
-                <FormItem v-for="item in valueList" :key="item.index"   :label="'Item ' + item.index">
-                <Row >
-                  <Col :xs="{span:4}" :sm="{span:6}" :lg="{span:4}">
-                      <Input type="text" v-model="item.name" placeholder="请输入内容"></Input>
-                  </Col>
-                  <Col :xs="{span:10}" :sm="{span:12}" :lg="{span:10}">
-                      <Slider :tip-format="getValueListSize" v-model="item.size" :step="1" :min="1" :max="16" show-stops></Slider>
-                  </Col>
-                  <Col :xs="{span:4}" :sm="{span:4}" :lg="{span:4}">
-                      <Button type="ghost" >删除</Button>
-                  </Col>
-                </Row>
-                </FormItem>
-              </Form>
-                <Row >
-                  <Col >
-                        <Button type="dashed" long  icon="plus-round">Add item</Button>
-                  </Col>
-                </Row>
-            </Card>
-          </Col>
-          <Col :xs="{span:24}" :sm="{span:24}" :lg="{span:12}">
-            <Card dis-hover	class="row-margin-top">
-              <p slot="title">画布设置</p>
-              <Tooltip content="留空白使用0.65x的宽度" placement="top-start">
-                <Row class-name="page-size-row" >
-                  <Col span="12">画布宽度:
-                    <InputNumber :max="1000" :min="200"></InputNumber>
-                  </Col>
-                  <Col span="12">画布高度:
-                    <InputNumber :max="500" :min="100"></InputNumber>
-                  </Col>              
-                </Row>
-              </Tooltip>
-              <Tooltip placement="top-start" >
-                <div slot="content" class="tooltip-content">
-                  <span>调整像素密度显示权重</span>
-                  <span>网格和画布像素大小</span>
-                </div>
-                <Row class-name="row-margin-top" >
-                  <Col span="24">像素密度（dppx）:
-                    <InputNumber :max="10" :min="1"></InputNumber>
-                  </Col>
-                </Row>
-              </Tooltip>
-            </Card>
-            <Card dis-hover	class="row-margin-top">
-              <p slot="title">导入图片</p>
-              <p>
-                <Icon type="information-circled"></Icon>
-                <span>导入图片，根据图片内容轮廓生成对应的结构</span>
-                <br>
-                <label for="uploadimage" class="label-uploadimage row-margin-top" >
-                  Upload image
-                </label>
-                <input type="file"  name="uploadimage" id="uploadimage" :style="{display:'none'}">
-              </p>
-            </Card>
-          </Col>
-          
-       </Row>
+      <Row :gutter="18">
+        <Col :xs="{span:24}" :sm="{span:24}" :md="{span:24}" :lg="{span:12}">
+        <Card dis-hover class="row-margin-bottom row-margin-top">
+          <p slot="title">
+            <span class="color-red">*&nbsp;</span>数据参数</p>
+          <Form>
+            <FormItem v-for="item in valueList" :key="item.index" :label="'Item ' + item.index">
+              <Row>
+                <Col :xs="{span:4}" :sm="{span:6}" :lg="{span:4}">
+                <Input type="text" v-model="item.name" placeholder="请输入内容"></Input>
+                </Col>
+                <Col :xs="{span:10}" :sm="{span:12}" :lg="{span:10}">
+                <Slider :tip-format="getValueListSize" v-model="item.size" :step="1" :min="1" :max="16" show-stops></Slider>
+                </Col>
+                <Col :xs="{span:4}" :sm="{span:4}" :lg="{span:4}">
+                <Button type="ghost">删除</Button>
+                </Col>
+              </Row>
+            </FormItem>
+          </Form>
+          <Row>
+            <Col>
+            <Button type="dashed" long icon="plus-round">Add item</Button>
+            </Col>
+          </Row>
+        </Card>
+        </Col>
+        <Col :xs="{span:24}" :sm="{span:24}" :lg="{span:12}">
+        <Card dis-hover class="row-margin-top">
+          <p slot="title">画布设置</p>
+          <Tooltip content="留空白使用0.65x的宽度" placement="top-start">
+            <Row class-name="page-size-row">
+              <Col span="12">画布宽度:
+              <InputNumber :max="1000" :min="200"></InputNumber>
+              </Col>
+              <Col span="12">画布高度:
+              <InputNumber :max="500" :min="100"></InputNumber>
+              </Col>
+            </Row>
+          </Tooltip>
+          <Tooltip placement="top-start">
+            <div slot="content" class="tooltip-content">
+              <span>调整像素密度显示权重</span>
+              <span>网格和画布像素大小</span>
+            </div>
+            <Row class-name="row-margin-top">
+              <Col span="24">像素密度（dppx）:
+              <InputNumber :max="10" :min="1"></InputNumber>
+              </Col>
+            </Row>
+          </Tooltip>
+          <Row class="row-margin-top">
+            <Col span="24">画布颜色:
+            <ColorPicker v-model="color1" recommend />
+            </Col>
+          </Row>
+          <Row class="row-margin-top">
+            <Col span="24">字体颜色:
+            <ColorPicker v-model="color2" recommend />
+            <i-switch v-model="randomFontColor" size="large">
+              <span slot="open">随机</span>
+              <span slot="close">关</span>
+            </i-switch>
+            <Button @click="showFontModalEvent" type="dashed">字体高级设置</Button>
+            </Col>
+          </Row>
+          <Row class="row-margin-top">
+            <Col span="10">字体:
+            <Select v-model="fontStyle" style="width:260px">
+              <Option v-for="item in fontyList" :value="item" :key="item">{{ item }}</Option>
+            </Select>
+            </Col>
+
+          </Row>
+          <Modal v-model="showFontModal" title="字体颜色高级设置" @on-cancel="hideFontModalEvent">
+            <p>编写JavaScript代码配置颜色</p>
+            <Input v-model="value5" type="textarea" placeholder="请输入js函数">
+            </Input>
+          </Modal>
+        </Card>
+        <Card dis-hover class="row-margin-top">
+          <p slot="title">导入图片</p>
+          <p>
+            <Icon type="information-circled"></Icon>
+            <span>导入图片，根据图片内容轮廓生成对应的结构</span>
+            <br>
+            <label for="uploadimage" class="label-uploadimage row-margin-top">
+              Upload image
+            </label>
+            <Button class="row-margin-top" type="ghost" icon="ios-trash">清除</Button>
+            <input type="file" name="uploadimage" id="uploadimage" :style="{display:'none'}">
+          </p>
+        </Card>
+        </Col>
+
+      </Row>
     </main>
   </div>
 </template>
 
 <script>
-import SystemInformation from "./LandingPage/SystemInformation";
-import { Button, Table } from "iview";
-const fs = require("fs");
-const path = require("path");
+import SystemInformation from './LandingPage/SystemInformation'
+import { Button, Table } from 'iview'
+const fs = require('fs')
+const path = require('path')
 export default {
-  name: "landing-page",
+  name: 'landing-page',
   components: {
     SystemInformation,
     Button,
@@ -85,21 +115,43 @@ export default {
   },
   data() {
     return {
-      dictorySelected: "", //文件路径
+      dictorySelected: '', //文件路径
       isLoading: false, //导入图片控制位
       tableData: [],
-      valueList: [{ index: 1, name: "123", size: 2 },{ index: 2, name: "123", size: 2 }],
-    };
+      valueList: [
+        { index: 1, name: '123', size: 2 },
+        { index: 2, name: '123', size: 2 }
+      ],
+      color1: '#ff6c0c',
+      color2: '#e9d9ec',
+      showFontModal: false,
+      value5: `function (word, weight) {
+            return (weight === 12) ? '#f02222' : '#c09292';}`,
+      webFont: 'https://fonts.googleapis.com/css?family=Finger+Paint',
+      fontyList: ['Finger Paint', 'Hiragino Mincho Pro', 'serif'],
+      fontStyle: 'Hiragino Mincho Pro',
+      switch1: true,
+      randomFontColor: true
+    }
   },
   methods: {
     open(link) {
-      this.$electron.shell.openExternal(link);
+      this.$electron.shell.openExternal(link)
     },
-    getValueListSize(size){
-       return `字体权重:${size}`
+    getValueListSize(size) {
+      return `字体权重:${size}`
+    },
+    showFontModalEvent() {
+      this.showFontModal = true
+    },
+    hideFontModalEvent() {
+      this.showFontModal = false
+    },
+    change() {
+      // this.randomFontColor = ! this.randomFontColor
     }
   }
-};
+}
 </script>
 
 <style>
@@ -110,7 +162,7 @@ export default {
 }
 
 body {
-  font-family: "Source Sans Pro", sans-serif;
+  font-family: 'Source Sans Pro', sans-serif;
 }
 
 #wrapper {
@@ -119,7 +171,6 @@ body {
     rgba(255, 255, 255, 1) 40%,
     rgba(229, 229, 229, 0.9) 100%
   );
-  height: 100vh;
   padding: 30px 60px;
   width: 100vw;
 }
@@ -127,7 +178,7 @@ body {
   margin-top: 2%;
 }
 .row-margin-bottom {
-   margin-bottom: 2%;
+  margin-bottom: 2%;
 }
 .label-uploadimage {
   display: inline-block;
