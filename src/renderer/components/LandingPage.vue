@@ -7,23 +7,23 @@
           <p slot="title">
             <span class="color-red">*&nbsp;</span>数据参数</p>
           <Form>
-            <FormItem v-for="item in valueList" :key="item.index" :label="'Item ' + item.index">
+            <FormItem v-for="(item,itemIndex) in valueList" :label="'Item ' + item.index">
               <Row>
-                <Col :xs="{span:4}" :sm="{span:6}" :lg="{span:4}">
+                <Col :xs="{span:3}" :sm="{span:6}" :lg="{span:4}" class="padding">
                 <Input type="text" v-model="item.name" placeholder="请输入内容"></Input>
                 </Col>
-                <Col :xs="{span:10}" :sm="{span:12}" :lg="{span:10}">
+                <Col :xs="{span:9}" :sm="{span:12}" :lg="{span:8}"  class="padding">
                 <Slider :tip-format="getValueListSize" v-model="item.size" :step="1" :min="1" :max="16" show-stops></Slider>
                 </Col>
-                <Col :xs="{span:4}" :sm="{span:4}" :lg="{span:4}">
-                <Button type="ghost">删除</Button>
+                <Col :xs="{span:4}" :sm="{span:4}" :lg="{span:4}" class="padding">
+                <Button @click="delectItem(itemIndex)" type="ghost">删除</Button>
                 </Col>
               </Row>
             </FormItem>
           </Form>
           <Row>
             <Col>
-            <Button type="dashed" long icon="plus-round">Add item</Button>
+            <Button type="dashed" @click="addItem()" long icon="plus-round">Add item</Button>
             </Col>
           </Row>
         </Card>
@@ -64,22 +64,22 @@
               <span slot="open">随机</span>
               <span slot="close">关</span>
             </i-switch>
-            <Button @click="showFontModalEvent" type="dashed">字体高级设置</Button>
+            <!-- <Button @click="showFontModalEvent" type="dashed">字体高级设置</Button> -->
             </Col>
           </Row>
           <Row class="row-margin-top">
             <Col span="10">字体:
-            <Select v-model="fontStyle" style="width:260px">
+            <Select  v-model="fontStyle" style="width:260px">
               <Option v-for="item in fontyList" :value="item" :key="item">{{ item }}</Option>
             </Select>
             </Col>
 
           </Row>
-          <Modal v-model="showFontModal" title="字体颜色高级设置" @on-cancel="hideFontModalEvent">
+          <!-- <Modal v-model="showFontModal" title="字体颜色高级设置" @on-cancel="hideFontModalEvent">
             <p>编写JavaScript代码配置颜色</p>
             <Input v-model="value5" type="textarea" placeholder="请输入js函数">
             </Input>
-          </Modal>
+          </Modal> -->
         </Card>
         <Card dis-hover class="row-margin-top">
           <p slot="title">导入图片</p>
@@ -87,12 +87,18 @@
             <Icon type="information-circled"></Icon>
             <span>导入图片，根据图片内容轮廓生成对应的结构</span>
             <br>
-            <label for="uploadimage" class="label-uploadimage row-margin-top">
-              Upload image
+            <label  for="uploadimage" class="label-uploadimage row-margin-top">
+              选择图片
             </label>
-            <Button class="row-margin-top" type="ghost" icon="ios-trash">清除</Button>
-            <input type="file" name="uploadimage" id="uploadimage" :style="{display:'none'}">
+            <Button class="row-margin-top" v-show="isSelectFile" @click="clearFile" type="ghost" icon="ios-trash">清除</Button>
+            <input type="file" @change="selectFile" ref="imgFile" name="uploadimage" id="uploadimage" :style="{display:'none'}">
+            <div v-show="isSelectFile" class=" row-margin-top demo-upload-list">
+              <img :src="imgFileDate">
+            </div>
           </p>
+        </Card>
+         <Card dis-hover class="row-margin-top">
+            <Button type="success" long>确定生成</Button>
         </Card>
         </Col>
 
@@ -131,7 +137,9 @@ export default {
       fontyList: ['Finger Paint', 'Hiragino Mincho Pro', 'serif'],
       fontStyle: 'Hiragino Mincho Pro',
       switch1: true,
-      randomFontColor: true
+      randomFontColor: true, //随机颜色
+      isSelectFile:false , //是否选择图片文件
+      imgFileDate:'' //缩略图
     }
   },
   methods: {
@@ -149,7 +157,37 @@ export default {
     },
     change() {
       // this.randomFontColor = ! this.randomFontColor
+    },
+    addItem(){
+      let newLength = this.valueList.length +1
+      this.valueList.push({
+        index:newLength,
+        size:2,
+        name:''
+      })
+    },
+    delectItem(index){
+      this.valueList.splice(index,1)
+    },
+    clearFile(){
+      console.log(this.$refs.imgFile.files)
+      this.$refs.imgFile.value = ''
+      this.isSelectFile = false 
+      this.imgFileDate  = '' //缩略图
+      console.log(this.$refs.imgFile.files)
+    },
+    selectFile(){
+      // 选择了图片
+      let that = this
+      this.isSelectFile = true
+      var reader = new FileReader();
+      reader.readAsDataURL(this.$refs.imgFile.files[0])
+      reader.onload = function(e){
+        that.imgFileDate = e.target.result
+      }
+
     }
+    
   }
 }
 </script>
@@ -165,6 +203,7 @@ body {
   font-family: 'Source Sans Pro', sans-serif;
 }
 
+
 #wrapper {
   background: radial-gradient(
     ellipse at top left,
@@ -173,6 +212,7 @@ body {
   );
   padding: 30px 60px;
   width: 100vw;
+  height:100%;
 }
 .row-margin-top {
   margin-top: 2%;
@@ -209,4 +249,26 @@ body {
 .color-red {
   color: red;
 }
+.padding {
+   padding-left: 9px; 
+   padding-right: 9px;
+}
+ .demo-upload-list{
+        display: inline-block;
+        width: 60px;
+        height: 60px;
+        text-align: center;
+        line-height: 60px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        overflow: hidden;
+        background: #fff;
+        position: relative;
+        box-shadow: 0 1px 1px rgba(0,0,0,.2);
+        margin-right: 4px;
+    }
+    .demo-upload-list img{
+        width: 100%;
+        height: 100%;
+    }
 </style>

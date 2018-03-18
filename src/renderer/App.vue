@@ -77,6 +77,6 @@
     margin-top: 5%;
   }
   .layout  .ivu-menu-item {
-    color: #999;
+    color: #eee;
   }
 </style>
