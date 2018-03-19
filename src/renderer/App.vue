@@ -7,14 +7,18 @@
                     <div class="layout-logo"></div>
                     <div class="layout-nav">
                         <MenuItem name="1">
+                        <router-link class="app-header" to="/">
                             <Icon type="ios-settings"></Icon>
                            设置
+                        </router-link>
                         </MenuItem>
-                        <MenuItem name="2">
+                        <MenuItem class="app-header" name="2">
+                          <router-link to="/create">
                             <Icon type="ios-eye"></Icon>
                             视图
+                          </router-link>
                         </MenuItem>
-                        <MenuItem name="3">
+                        <MenuItem class="app-header" name="3">
                             <Icon type="ios-book"></Icon>
                            指南
                         </MenuItem>
@@ -78,5 +82,11 @@
   }
   .layout  .ivu-menu-item {
     color: #eee;
+  }
+  .router-link-active{
+    color: #fff !important;
+  }
+   .app-header > a{
+    color: #999;
   }
 </style>

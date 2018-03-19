@@ -12,6 +12,10 @@ export default new Router({
         {
             path: '*',
             redirect: '/'
+        }, {
+            path: '/create',
+            name: 'create-page',
+            component: require('@/components/createPic').default
         }
     ]
 })
