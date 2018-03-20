@@ -31,6 +31,14 @@ export default {
     let desktopPic = new AA(this.$refs.desktop)
     let isCreated = this.$store.state.Counter.isCreated
     let option = this.$store.state.Counter.createOption
+    option.noDataLoadingOption = {  
+        backgroundColor: '#eee',
+        text: '暂无数据',
+        textStyle: {
+            color: '#888',
+            fontSize: 14
+        }
+    }
     desktopPic.setOption(option)
         global.onresize = function() {
           desktopPic.resize()
