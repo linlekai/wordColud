@@ -41,27 +41,17 @@
         <Col :xs="{span:24}" :sm="{span:24}" :lg="{span:12}">
         <Card dis-hover class="row-margin-top">
           <p slot="title">画布设置</p>
-          <Tooltip content="留空白使用0.65x的宽度" placement="top-start">
-            <Row class-name="page-size-row">
-              <Col span="12">画布宽度:
+          <Row>
+            <!-- <Col span="12">画布宽度:
               <InputNumber v-model="picWidth" :step="20" :max="1000" :min="200"></InputNumber>
-              </Col>
-              <Col span="12">画布高度:
-              <InputNumber v-model="picHeight" :step="20" :max="500" :min="100"></InputNumber>
-              </Col>
-            </Row>
-          </Tooltip>
-          <Tooltip placement="top-start">
-            <div slot="content" class="tooltip-content">
-              <span>调整像素密度显示权重</span>
-              <span>网格和画布像素大小</span>
-            </div>
-            <Row class-name="row-margin-top">
-              <Col span="24">像素密度（dppx）:
-              <InputNumber v-model="fontSizeFactor" :step="0.1" :max="10" :min="0.1"></InputNumber>
-              </Col>
-            </Row>
-          </Tooltip>
+              </Col> -->
+            <Col span="12">画布高度:
+            <InputNumber v-model="picHeight" :step="20" :max="500" :min="100"></InputNumber>
+            </Col>
+            <Col span="12">旋转系数:
+            <InputNumber v-model="rotateRatio" :step="0.1" :max="1" :min="0"></InputNumber>
+            </Col>
+          </Row>
           <Row class="row-margin-top">
             <Col span="24">画布颜色:
             <ColorPicker alpha v-model="backgroundColor" recommend />
@@ -85,7 +75,14 @@
               <Option v-for="item in fontyList" :value="item" :key="item">{{ item }}</Option>
             </Select>
             </Col>
-
+          </Row>
+          <Row class="row-margin-top">
+            <Col span="12">最大字体:
+            <InputNumber v-model="maxFontSize" :step="1" :max="60" :min="10"></InputNumber>
+            </Col>
+            <Col span="12">最小字体:
+            <InputNumber v-model="minFontSize" :step="1" :max="60" :min="8"></InputNumber>
+            </Col>
           </Row>
           <!-- <Modal v-model="showFontModal" title="字体颜色高级设置" @on-cancel="hideFontModalEvent">
             <p>编写JavaScript代码配置颜色</p>
@@ -97,16 +94,17 @@
           <p slot="title">导入图片</p>
           <p>
             <Icon type="information-circled"></Icon>
-            <span>导入图片，根据图片内容轮廓生成对应的结构</span>
+            <span>输入图片地址，根据图片内容轮廓生成对应的结构</span>
             <br>
-            <label for="uploadimage" class="label-uploadimage row-margin-top">
+            <!-- <label for="uploadimage" class="label-uploadimage row-margin-top">
               选择图片
-            </label>
+            </label> -->
             <Button class="row-margin-top" v-show="isSelectFile" @click="clearFile" type="ghost" icon="ios-trash">清除</Button>
-            <input type="file" @change="selectFile" ref="imgFile" name="uploadimage" accept="image/jpeg,image/png" id="uploadimage" :style="{display:'none'}">
-            <div v-show="isSelectFile" class=" row-margin-top demo-upload-list">
+            <Input class="row-margin-top" clearable v-model="imageShape" placeholder="请输入图片地址" style="width: 400px"></Input>
+            <!-- <input type="file" @change="selectFile" ref="imgFile" name="uploadimage" accept="image/jpeg,image/png" id="uploadimage" :style="{display:'none'}"> -->
+            <!-- <div v-show="isSelectFile" class=" row-margin-top demo-upload-list">
               <img :src="imgFileDate">
-            </div>
+            </div> -->
           </p>
         </Card>
         <Card dis-hover class="row-margin-top">
@@ -167,10 +165,14 @@ export default {
       randomFontColor: true, //随机颜色
       isSelectFile: false, //是否选择图片文件
       imgFileDate: '', //缩略图
-      picWidth: 200, //画布宽度
+      //picWidth: 200, //画布宽度
       picHeight: 500, //画布高度
       imgData: '',
-      fontSizeFactor: 0.1 //字体密度
+      maxFontSize: 80,
+      minFontSize: 10,
+      rotateRatio: 0, //旋转系数
+      imageShape:
+        'https://upload.wikimedia.org/wikipedia/zh/thumb/f/f4/Baidu.svg/1280px-Baidu.svg.png'
     }
   },
   created: function(el) {
@@ -182,7 +184,6 @@ export default {
   mounted() {
     let option = this.$store.state.Counter.createOption
     let list = []
-    console.log(option)
     if (option && option.list) {
       for (let i = 0; i < option.list.length; i++) {
         list.push({
@@ -204,6 +205,7 @@ export default {
       }
       this.textareaContext = result
     }
+    this.rotateRatio = option.rotateRatio
   },
   methods: {
     open(link) {
@@ -220,7 +222,6 @@ export default {
     },
     //切换输入框和列表
     changeUseTextarea(status) {
-      console.log(`now is ${status}`)
       if (status) {
         let result = ''
         let list = this.valueList
@@ -231,8 +232,7 @@ export default {
       } else {
         let list = []
         let getList = this.formattTextarea(this.textareaContext)
-        console.log('----')
-        console.log(getList)
+
         for (let i = 0; i < getList.length; i++) {
           list.push({
             name: getList[i][0],
@@ -255,46 +255,47 @@ export default {
       this.valueList.splice(index, 1)
     },
     clearFile() {
-      console.log(this.$refs.imgFile.files)
       this.$refs.imgFile.value = ''
       this.isSelectFile = false
       this.imgFileDate = '' //缩略图
     },
     selectFile() {
       // 选择了图片
-      let getFile = this.$refs.imgFile.files[0]
-
-      if (getFile.type) {
-        if (/^image/.test(getFile.type) === false) {
-          this.$Message.warning('请选择图片格式')
-          return
-        }
-      } else {
-        this.$Message.warning('请选择图片格式')
-        return
-      }
-      let that = this
-      this.isSelectFile = true
-      var reader = new FileReader()
-      reader.readAsDataURL(this.$refs.imgFile.files[0])
-      reader.onload = function(e) {
-        that.imgFileDate = e.target.result
-      }
+      //后期选择本地文件
+      // let getFile = this.$refs.imgFile.files[0]
+      // if (getFile.type) {
+      //   if (/^image/.test(getFile.type) === false) {
+      //     this.$Message.warning('请选择图片格式')
+      //     return
+      //   }
+      // } else {
+      //   this.$Message.warning('请选择图片格式')
+      //   return
+      // }
+      // let that = this
+      // this.isSelectFile = true
+      // var reader = new FileReader()
+      // reader.readAsDataURL(this.$refs.imgFile.files[0])
+      // reader.onload = function(e) {
+      // console.log(e)
+      //   that.imgFileDate = e.target.result
+      // }
     },
     createPic() {
-      console.log(this.textareaContext)
       let createOption = {
-        imageShape: this.imgFileDate,
+        imageShape: this.imageShape,
         weightFactor: this.fontSizeFactor,
         maxFontSize: 80,
         minFontSize: 10,
-        gridSize: 1,
-        color: 'random-light',
         list: this.formattList(this.valueList),
         backgroundColor: this.backgroundColor,
-        picWidth: this.picWidth + 'px',
+        //   picWidth: this.picWidth + 'px',
         picHeight: this.picHeight + 'px',
-        fontFamily: this.fontFamily
+        fontFamily: this.fontFamily,
+        color: this.randomFontColor ? 'random-light' : this.color2,
+        rotateRatio: this.rotateRatio,
+        rotateRatio: this.rotateRatio,
+        fontCSS: 'https://fonts.googleapis.com/css?family=Finger+Paint'
       }
       //开启 输入框模式
       if (this.useTextarea) {
