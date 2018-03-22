@@ -3,9 +3,10 @@
         <Card :bordered="false">
             <p slot="title">生成词云</p>
             <ButtonGroup class="row-margin-bottom">
-                <Button type="ghost" @click="downLoad" icon="archive"></Button>
+                <Button type="ghost" @click="downLoad" icon="archive">
+                </Button>
                 <Button type="ghost" @click="deletePic" icon="trash-a"></Button>
-                 <Button type="ghost" @click="reload" icon="ios-reload"></Button>
+                <Button type="ghost" @click="reload" icon="ios-reload"></Button>
             </ButtonGroup>
 
             <div :style="{height:this.height}" style="width：100%;" ref="desktop"></div>
@@ -27,11 +28,13 @@ export default {
   data() {
     return {
       height: '400px',
-      desktopPic:''
+      desktopPic: '',
+      dom: '',
+      downLoadResult: ''
     }
   },
   mounted() {
-     this.desktopPic = new AA(this.$refs.desktop)
+    this.desktopPic = new AA(this.$refs.desktop)
     let isCreated = this.$store.state.Counter.isCreated
     let option = this.$store.state.Counter.createOption
 
@@ -44,33 +47,40 @@ export default {
       }
     }
     let that = this
-    new Promise(function(res,rej){
-        that.desktopPic.setOption(option)
-        console.log("1")
-        let dom = that.$refs.desktop.querySelector("canvas")
-
-        res()
-    }).then(()=>{
-        console.log(2)
-
+    new Promise(function(res, rej) {
+      that.desktopPic.setOption(option)
+      that.dom = that.$refs.desktop.querySelector('canvas')
+      res()
+      console.log("aaaa")
+    }).then(() => {
+      
     })
-    console.log(3)
+   
     global.onresize = function() {
-      this.desktopPic.resize()
+      that.desktopPic.resize()
     }
   },
-  methods:{
-      reload(){
-          this.desktopPic.resize()
-      },
-      deletePic(){
-          this.desktopPic.setOption({})
-      },
-      downLoad(){
-          
-
-        
-      }
+  updated(){
+      
+  },
+  methods: {
+    reload() {
+      this.desktopPic.resize()
+    },
+    deletePic() {
+      this.desktopPic.setOption({})
+      this.$store.dispatch('saveOption', {})
+    },
+    downLoad() {
+       
+        // that.downLoadResult= that.dom.toDataURL('image/png')
+           var link = document.createElement('a');
+    link.href = this.dom.toDataURL('image/png')
+    link.download = 'woldCould';
+    var event = document.createEvent('MouseEvents');
+    event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+    link.dispatchEvent(event);
+    }
   }
 }
 </script>
