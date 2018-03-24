@@ -16,6 +16,11 @@ export default new Router({
             path: '/create',
             name: 'create-page',
             component: require('@/components/createPic').default
+        },
+        {
+            path: '/guide',
+            name: 'guide',
+            component: require('@/components/guide').default
         }
     ]
 })

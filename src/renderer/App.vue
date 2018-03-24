@@ -19,8 +19,10 @@
                           </router-link>
                         </MenuItem>
                         <MenuItem class="app-header" name="3">
+                        <router-link to="guide">
                             <Icon type="ios-book"></Icon>
                            指南
+                        </router-link>
                         </MenuItem>
                     </div>
                 </Menu>
